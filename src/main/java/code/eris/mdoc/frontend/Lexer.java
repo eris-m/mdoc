@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * A lexer, turns a string into a list of tokens.
- * 
- * If you just need to get the token list, use {@link Lexer.lexString}
+
+ * If you just need to get the token list, use {@link #lexString(String)}
  */
 public class Lexer {
     public Lexer() {
@@ -20,9 +20,9 @@ public class Lexer {
     
     /**
      * Lexes a string and returns a list of tokens.
-     * 
+
      * Shorthand for {@code new Lexer(str).lexAll()}.
-     * 
+
      * @param str The string to lex.
      * @return List of tokens.
      */
@@ -32,7 +32,7 @@ public class Lexer {
 
     /**
      * Lexes the next token in the lexer's source.
-     * 
+
      * Advances the lexer's index so that the next call to {@code lexNextToken}
      * returns the token after that.
      */
