@@ -3,6 +3,7 @@ package code.eris.mdoc.frontend;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * A lexer, turns a string into a list of tokens.
@@ -52,6 +53,11 @@ public class Lexer {
                     return tk;
                 }
 
+                tk = lexWhitespace();
+                if (tk != null) {
+                    return tk;
+                }
+
                 tk = lexDigits();
                 if (tk != null) {
                     return tk;
@@ -80,29 +86,23 @@ public class Lexer {
     }
 
     private Token lexAlpha() {
-        int i;
-        for (i = index; i < source.length; i++) {
-            char curr = source[i];
-            if (!Character.isAlphabetic(curr)) {
-                break;
-            }
-        }
+        return lexWhile(Token.Kind.Alpha, Character::isAlphabetic);
+    }
 
-        if (i == index) {
-            return null;
-        }
-
-        String substr = new String(source, index, i - index);
-        index = i;
-
-        return new Token(Token.Kind.Alpha, substr);
+    private Token lexWhitespace() {
+        return lexWhile(Token.Kind.Whitespace, Character::isWhitespace);
     }
 
     private Token lexDigits() {
+        return lexWhile(Token.Kind.Digit, Character::isDigit);
+    }
+
+    private Token lexWhile(Token.Kind kind, Predicate<Character> predicate) {
         int i;
+
         for (i = index; i < source.length; i++) {
             char curr = source[i];
-            if (!Character.isDigit(curr)) {
+            if (!predicate.test(curr)) {
                 break;
             }
         }
@@ -114,7 +114,7 @@ public class Lexer {
         String substr = new String(source, index, i - index);
         index = i;
 
-        return new Token(Token.Kind.Digit, substr);
+        return new Token(kind, substr);
     }
 
     private char peekChar() {

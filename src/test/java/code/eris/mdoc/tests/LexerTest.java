@@ -23,7 +23,7 @@ public class LexerTest {
 
         assertAll(
                 () -> assertEquals(2, tokens.size()),
-                () -> assertEquals(new Token(Token.Kind.OpenParenthesis, "("), tokens.get(0)),
+                () -> assertEquals(new Token(Token.Kind.OpenParenthesis, "("), tokens.getFirst()),
                 () -> assertEquals(new Token(Token.Kind.CloseParenthesis, ")"), tokens.get(1)
         )
         );
@@ -45,7 +45,7 @@ public class LexerTest {
         
         assertAll(
                 () -> assertEquals(3, tokens.size()),
-                () -> assertEquals(new Token(Token.Kind.Digit, "12345"), tokens.get(0)),
+                () -> assertEquals(new Token(Token.Kind.Digit, "12345"), tokens.getFirst()),
                 () -> assertEquals(new Token(Token.Kind.Period, "."), tokens.get(1)),
                 () -> assertEquals(new Token(Token.Kind.Digit, "54312"), tokens.get(2))
         );
@@ -68,5 +68,32 @@ public class LexerTest {
         for (var tk : tks) {
             assertEquals(Token.Kind.Unknown, tk.kind());
         }
+    }
+
+    @Test
+    public void testWhitespace() {
+        String str = "\t  \t\n\r\n";
+        var lexer = new Lexer(str);
+        List<Token> tokens = lexer.lexAll();
+
+        assertAll(
+                () -> assertEquals(1, tokens.size()),
+                () -> assertEquals(new Token(Token.Kind.Whitespace, str), tokens.getFirst())
+        );
+    }
+
+    @Test
+    public void testWords() {
+        var lexer = new Lexer("Hello world\n\r\nline");
+        List<Token> tokens = lexer.lexAll();
+
+        assertAll(
+                () -> assertEquals(5, tokens.size()),
+                () -> assertEquals(new Token(Token.Kind.Alpha, "Hello"), tokens.getFirst()),
+                () -> assertEquals(new Token(Token.Kind.Whitespace, " "), tokens.get(1)),
+                () -> assertEquals(new Token(Token.Kind.Alpha, "world"), tokens.get(2)),
+                () -> assertEquals(new Token(Token.Kind.Whitespace, "\n\r\n"), tokens.get(3)),
+                () -> assertEquals(new Token(Token.Kind.Alpha, "line"), tokens.get(4))
+        );
     }
 }
