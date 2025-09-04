@@ -96,4 +96,20 @@ public class LexerTest {
                 () -> assertEquals(new Token(Token.Kind.Alpha, "line"), tokens.get(4))
         );
     }
+
+    @Test
+    public void testTrueSolo() {
+        var trueLexer = new Lexer("true");
+        Token tk = trueLexer.lexNextToken();
+
+        assertEquals(new Token(Token.Kind.True, "true"), tk);
+    }
+
+    @Test
+    public void testFalseSolo() {
+        var trueLexer = new Lexer("false");
+        Token tk = trueLexer.lexNextToken();
+
+        assertEquals(new Token(Token.Kind.False, "false"), tk);
+    }
 }

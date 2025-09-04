@@ -9,7 +9,9 @@ public record Token(Kind kind, String contents) {
         Period,
         Dollar,
         OpenParenthesis,
-        CloseParenthesis
+        CloseParenthesis,
+        True,
+        False,
     }
 
 }

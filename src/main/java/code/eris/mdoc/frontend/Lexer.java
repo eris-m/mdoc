@@ -18,7 +18,7 @@ public class Lexer {
     public Lexer(String source) {
         this.source = source.toCharArray();
     }
-    
+
     /**
      * Lexes a string and returns a list of tokens.
 
@@ -38,6 +38,9 @@ public class Lexer {
      * returns the token after that.
      */
     public Token lexNextToken() {
+        if (isFinished())
+            return null;
+
         switch (peekChar()) {
             case '$':
                 return nextCharToken(Token.Kind.Dollar);
@@ -48,20 +51,21 @@ public class Lexer {
             case '.':
                 return nextCharToken(Token.Kind.Period);
             default:
-                Token tk = lexAlpha();
-                if (tk != null) {
+                Token tk = lexBoolean();
+                if (tk != null)
                     return tk;
-                }
+
+                tk = lexAlpha();
+                if (tk != null)
+                    return tk;
 
                 tk = lexWhitespace();
-                if (tk != null) {
+                if (tk != null)
                     return tk;
-                }
 
                 tk = lexDigits();
-                if (tk != null) {
+                if (tk != null)
                     return tk;
-                }
 
                 return nextCharToken(Token.Kind.Unknown);
         }
@@ -85,6 +89,20 @@ public class Lexer {
         return tokens;
     }
 
+    public boolean isFinished() {
+        return index >= source.length;
+    }
+
+    private Token lexBoolean() {
+        Token tk = lexKeyword(Token.Kind.True, "true");
+        if (tk != null) {
+            return tk;
+        }
+
+        tk = lexKeyword(Token.Kind.False, "false");
+        return tk;
+    }
+
     private Token lexAlpha() {
         return lexWhile(Token.Kind.Alpha, Character::isAlphabetic);
     }
@@ -95,6 +113,31 @@ public class Lexer {
 
     private Token lexDigits() {
         return lexWhile(Token.Kind.Digit, Character::isDigit);
+    }
+
+    private Token lexKeyword(Token.Kind kind, String keyword) {
+        if (!isLastSeparating()) {
+            return null;
+        }
+
+        if (index + keyword.length() > source.length) {
+            return null;
+        }
+
+        int i;
+        for (i = 0; i < keyword.length(); i++) {
+            if (source[i + index] != keyword.charAt(i)) {
+                return null;
+            }
+        }
+
+        index += i;
+        if (!isCurrentSeparating()) {
+            index -= i;
+            return null;
+        }
+
+        return new Token(kind, keyword);
     }
 
     private Token lexWhile(Token.Kind kind, Predicate<Character> predicate) {
@@ -128,6 +171,28 @@ public class Lexer {
     private Token nextCharToken(Token.Kind kind) {
         char ch = nextChar();
         return new Token(kind, Character.toString(ch));
+    }
+
+    private boolean isCurrentSeparating() {
+        if (isFinished())
+            return true;
+
+        char ch = source[index];
+        return switch (ch) {
+            case '(', ')' -> true;
+            default -> Character.isWhitespace(ch);
+        };
+    }
+
+    private boolean isLastSeparating() {
+        if (index == 0)
+            return true;
+
+        char ch = source[index - 1];
+        return switch (ch) {
+            case '(', ')' -> true;
+            default -> Character.isWhitespace(ch);
+        };
     }
 
     private int index = 0;
