@@ -154,13 +154,27 @@ class ValueParsers {
         return exprParser(ValueParsers::parseNumber);
     }
 
-//    public static ParserOutput<BooleanValueExpr> parseBoolean(List<Token> tokens) throws ParserException {
-//
-//    }
-//
-//    public static ParserF<Expr> booleanExprParser() {
-//        return exprParser(ValueParsers::parseBoolean);
-//    }
+    public static ParserOutput<BooleanValueExpr> parseBoolean(List<Token> tokens) throws ParserException {
+        if (tokens.isEmpty())
+            throw new EndOfInputException();
+
+        Token.Kind kind = tokens.getFirst().kind();
+        List<Token> rest = tokens.subList(1, tokens.size());
+
+        if (kind == Token.Kind.True) {
+            return new ParserOutput<>(rest, new BooleanValueExpr(true));
+        }
+
+        if (kind == Token.Kind.False) {
+            return new ParserOutput<>(rest, new BooleanValueExpr(false));
+        }
+
+        throw new ExpectedTokensException(List.of(Token.Kind.True, Token.Kind.False), tokens.getFirst());
+    }
+
+    public static ParserF<Expr> booleanExprParser() {
+        return exprParser(ValueParsers::parseBoolean);
+    }
 }
 
 public class Parser {
@@ -182,6 +196,10 @@ public class Parser {
     }
 
     private static ParserOutput<Expr> parseNext(List<Token> tokens) throws ParserException {
-        return parseOr(ValueParsers.numberExprParser(), ValueParsers.textExprParser()).parse(tokens);
+        return parseOr(
+                ValueParsers.booleanExprParser(),
+                ValueParsers.numberExprParser(),
+                ValueParsers.textExprParser()
+        ).parse(tokens);
     }
 }

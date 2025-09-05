@@ -2,6 +2,7 @@ package code.eris.mdoc.tests;
 
 import code.eris.mdoc.frontend.Parser;
 import code.eris.mdoc.frontend.Token;
+import code.eris.mdoc.frontend.ast.BooleanValueExpr;
 import code.eris.mdoc.frontend.ast.Expr;
 import code.eris.mdoc.frontend.ast.NumberValueExpr;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,32 @@ public class ParserTests {
         assertAll(
                 () -> assertEquals(size, exprs.size()),
                 () -> assertEquals(expected, ((NumberValueExpr)exprs.get(pos)).getValue(), 0.005)
+        );
+    }
+
+    @Test
+    void testBooleanTrue() {
+        List<Token> tokens = List.of(
+                new Token(Token.Kind.True, "true")
+        );
+        List<Expr> exprs = Parser.parse(tokens);
+
+        assertAll(
+                () -> assertEquals(1, exprs.size()),
+                () -> assertEquals(new BooleanValueExpr(true), exprs.getFirst())
+        );
+    }
+
+    @Test
+    void testBooleanFalse() {
+        List<Token> tokens = List.of(
+                new Token(Token.Kind.False, "false")
+        );
+        List<Expr> exprs = Parser.parse(tokens);
+
+        assertAll(
+                () -> assertEquals(1, exprs.size()),
+                () -> assertEquals(new BooleanValueExpr(false), exprs.getFirst())
         );
     }
 }
