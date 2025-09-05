@@ -130,7 +130,7 @@ class ValueParsers {
                     (tk) -> tk.kind() == Token.Kind.Period,
                     (tk) -> new ExpectedTokensException(List.of(Token.Kind.Period), tk)
             ).parse(digitA.rest()).rest();
-        } catch (ParserException _) {
+        } catch (ParserException ex) {
             var number = new NumberValueExpr(digitA.expr());
             return new ParserOutput<>(digitA.rest(), number);
         }

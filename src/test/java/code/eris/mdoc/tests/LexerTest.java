@@ -107,9 +107,19 @@ public class LexerTest {
 
     @Test
     public void testFalseSolo() {
-        var trueLexer = new Lexer("false");
-        Token tk = trueLexer.lexNextToken();
+        var falseLexer = new Lexer("false");
+        Token tk = falseLexer.lexNextToken();
 
         assertEquals(new Token(Token.Kind.False, "false"), tk);
+    }
+
+    @Test
+    public void testTrueFalse() {
+        var lexer = new Lexer("truefalse");
+        List<Token> tk = lexer.lexAll();
+        assertAll(
+                () -> assertEquals(1, tk.size()),
+                () -> assertEquals(new Token(Token.Kind.Alpha, "truefalse"), tk.getFirst())
+        );
     }
 }
