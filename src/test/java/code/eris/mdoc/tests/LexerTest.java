@@ -3,43 +3,44 @@ package code.eris.mdoc.tests;
 import code.eris.mdoc.frontend.Lexer;
 import code.eris.mdoc.frontend.Token;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LexerTest {
-    // TODO: combine tests into a parameterised test.
-
-    @Test
-    public void testDollar() {
-        var lexer = new Lexer("$hello");
-        Token tk = lexer.lexNextToken();
-        assertEquals(new Token(Token.Kind.Dollar, "$"), tk);
+    static Stream<Arguments> testSingleSource() {
+        return Stream.of(
+                Arguments.of("$", Token.Kind.Dollar),
+                Arguments.of("(", Token.Kind.OpenParenthesis),
+                Arguments.of(")", Token.Kind.CloseParenthesis),
+                Arguments.of("123456789", Token.Kind.Digit),
+                Arguments.of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", Token.Kind.Alpha),
+                Arguments.of("\\", Token.Kind.Unknown),
+                Arguments.of("\t \n\r\n  \t\t  ", Token.Kind.Whitespace),
+                Arguments.of(".", Token.Kind.Period),
+                Arguments.of(",", Token.Kind.Comma),
+                Arguments.of("true", Token.Kind.True),
+                Arguments.of("false", Token.Kind.False)
+        );
     }
 
-    @Test
-    public void testParenthesis() {
-        var lexer = new Lexer("()");
+    @ParameterizedTest
+    @MethodSource("testSingleSource")
+    void testSingle(String input, Token.Kind token) {
+        var lexer = new Lexer(input);
         List<Token> tokens = lexer.lexAll();
 
         assertAll(
-                () -> assertEquals(2, tokens.size()),
-                () -> assertEquals(new Token(Token.Kind.OpenParenthesis, "("), tokens.getFirst()),
-                () -> assertEquals(new Token(Token.Kind.CloseParenthesis, ")"), tokens.get(1)
-        )
+                () -> assertEquals(1, tokens.size()),
+                () -> assertEquals(new Token(token, input), tokens.getFirst())
         );
-        
     }
-    
-    @Test
-    public void testInteger() {
-        var lexer = new Lexer("12345");
-        Token token = lexer.lexNextToken();
-        
-        assertEquals(new Token(Token.Kind.Digit, "12345"), token);
-    }
-    
+
     @Test
     public void testFloat() {
         var lexer = new Lexer("12345.54312");
@@ -50,37 +51,6 @@ public class LexerTest {
                 () -> assertEquals(new Token(Token.Kind.Digit, "12345"), tokens.getFirst()),
                 () -> assertEquals(new Token(Token.Kind.Period, "."), tokens.get(1)),
                 () -> assertEquals(new Token(Token.Kind.Digit, "54312"), tokens.get(2))
-        );
-    }
-    
-    @Test
-    public void testAlpha() {
-        var lexer = new Lexer("abc");
-        Token token = lexer.lexNextToken();
-        
-        assertEquals(new Token(Token.Kind.Alpha, "abc"), token);
-    }
-    
-    @Test
-    public void testUnknown() {
-        var lexer = new Lexer("::<><>''_'-'_");
-        
-        List<Token> tks = lexer.lexAll();
-        
-        for (var tk : tks) {
-            assertEquals(Token.Kind.Unknown, tk.kind());
-        }
-    }
-
-    @Test
-    public void testWhitespace() {
-        String str = "\t  \t\n\r\n";
-        var lexer = new Lexer(str);
-        List<Token> tokens = lexer.lexAll();
-
-        assertAll(
-                () -> assertEquals(1, tokens.size()),
-                () -> assertEquals(new Token(Token.Kind.Whitespace, str), tokens.getFirst())
         );
     }
 
@@ -97,44 +67,6 @@ public class LexerTest {
                 () -> assertEquals(new Token(Token.Kind.Whitespace, "\n\r\n"), tokens.get(3)),
                 () -> assertEquals(new Token(Token.Kind.Alpha, "line"), tokens.get(4))
         );
-    }
-
-    @Test
-    public void testPeriod() {
-        var lexer = new Lexer(".");
-        List<Token> tks = lexer.lexAll();
-
-        assertAll(
-                () -> assertEquals(1, tks.size()),
-                () -> assertEquals(new Token(Token.Kind.Period, "."), tks.getFirst())
-        );
-    }
-
-    @Test
-    public void testComma() {
-        var lexer = new Lexer(",");
-        List<Token> tks = lexer.lexAll();
-
-        assertAll(
-                () -> assertEquals(1, tks.size()),
-                () -> assertEquals(new Token(Token.Kind.Comma, ","), tks.getFirst())
-        );
-    }
-
-    @Test
-    public void testTrueSolo() {
-        var trueLexer = new Lexer("true");
-        Token tk = trueLexer.lexNextToken();
-
-        assertEquals(new Token(Token.Kind.True, "true"), tk);
-    }
-
-    @Test
-    public void testFalseSolo() {
-        var falseLexer = new Lexer("false");
-        Token tk = falseLexer.lexNextToken();
-
-        assertEquals(new Token(Token.Kind.False, "false"), tk);
     }
 
     @Test
