@@ -7,6 +7,7 @@ public record Token(Kind kind, String contents) {
         Alpha,
         Digit,
         Period,
+        Comma,
         Dollar,
         OpenParenthesis,
         CloseParenthesis,

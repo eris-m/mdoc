@@ -9,6 +9,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LexerTest {
+    // TODO: combine tests into a parameterised test.
+
     @Test
     public void testDollar() {
         var lexer = new Lexer("$hello");
@@ -94,6 +96,28 @@ public class LexerTest {
                 () -> assertEquals(new Token(Token.Kind.Alpha, "world"), tokens.get(2)),
                 () -> assertEquals(new Token(Token.Kind.Whitespace, "\n\r\n"), tokens.get(3)),
                 () -> assertEquals(new Token(Token.Kind.Alpha, "line"), tokens.get(4))
+        );
+    }
+
+    @Test
+    public void testPeriod() {
+        var lexer = new Lexer(".");
+        List<Token> tks = lexer.lexAll();
+
+        assertAll(
+                () -> assertEquals(1, tks.size()),
+                () -> assertEquals(new Token(Token.Kind.Period, "."), tks.getFirst())
+        );
+    }
+
+    @Test
+    public void testComma() {
+        var lexer = new Lexer(",");
+        List<Token> tks = lexer.lexAll();
+
+        assertAll(
+                () -> assertEquals(1, tks.size()),
+                () -> assertEquals(new Token(Token.Kind.Comma, ","), tks.getFirst())
         );
     }
 

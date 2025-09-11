@@ -50,6 +50,8 @@ public class Lexer {
                 return nextCharToken(Token.Kind.CloseParenthesis);
             case '.':
                 return nextCharToken(Token.Kind.Period);
+            case ',':
+                return nextCharToken(Token.Kind.Comma);
             default:
                 Token tk = lexBoolean();
                 if (tk != null)
